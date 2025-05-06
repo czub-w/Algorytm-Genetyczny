@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <math.h>
+#include <cstdlib>
 
 #include "TParam.h"
 
@@ -8,7 +9,7 @@ using namespace std;
 TParam::TParam(double x_start, double x_end, double dx) {
 	set_range(x_start, x_end, dx);
 	name = "";
-	val_id = 0;
+	set_rand_val();
 }
 
 TParam::TParam(double x_start, double x_end, double dx, double val) {
@@ -17,10 +18,27 @@ TParam::TParam(double x_start, double x_end, double dx, double val) {
 	name = "";
 }
 
+TParam::TParam(string name,double x_start, double x_end, double dx) {
+	this->name = name;
+	set_range(x_start, x_end, dx);
+	set_rand_val();
+}
+
+TParam::TParam(string name, double x_start, double x_end, double dx, double val) {
+	this->name = name;
+	set_range(x_start, x_end, dx);
+	set_rand_val();
+}
+
 void TParam::set_range(double x_start, double x_end, double dx) {
 	this->x_start = x_start;
 	this->x_end = x_end;
 	this->dx = dx;
+}
+
+void TParam::set_rand_val() {
+	int vals_count = static_cast<int>(fabs(x_end - x_start) / dx + 1);
+	val_id = rand() % vals_count;
 }
 
 int TParam::get_val_id(double val) {
