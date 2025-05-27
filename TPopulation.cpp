@@ -50,5 +50,52 @@ void TPopulation::bestCandidate() const {
 const std::vector<TCandidate>& TPopulation::getCandidates() const {
     return candidates;
 }
+TCandidate* TPopulation::promote_candidate() {
+    
+    double total_rating = 0;
+    for (const auto& c : candidates) {
+        total_rating += c.getRating();
+    }
+
+    double r = ((double)rand() / RAND_MAX) * total_rating; // generowanie od 0 do total_ating
+
+    double sum = 0;
+    for (auto& c : candidates) {
+        sum += c.getRating();
+        if (r < sum) {
+            return &c;
+        }
+    }
+
+    return &candidates.back();
+}
+
+
+void TPopulation::test_histogram(int num_draws)
+{
+    vector<int> counts(candidates.size(), 0);
+
+    for (int i = 0; i < num_draws; ++i) {
+        TCandidate* selected = promote_candidate();
+        for (size_t j = 0; j < candidates.size(); ++j) {
+            if (selected == &candidates[j]) {
+                counts[j]++;
+                break;
+            }
+        }
+    }
+
+    cout << "\nHistogram losowan kandydatow:\n";
+    for (size_t i = 0; i < counts.size(); ++i) {
+        cout << "Kandydat #" << i << ": ";
+        int bars = counts[i] * 50 / num_draws;
+        for (int k = 0; k < bars; ++k) {
+            cout << "|";
+        }
+        cout << " (" << counts[i] << ")\n";
+    }
+}
+
+
 
 

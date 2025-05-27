@@ -6,17 +6,22 @@
 using namespace std;
 
 int main() {
-	srand(time(0));
+    srand(time(0));
 
-	unsigned int candidates_count = 5;
-	unsigned int max_population_count = 100;
-	unsigned int min_improvement_proc = 2;
+    TPopulation pop(10);
+    pop.calculate();
+    pop.info();
 
-	TAlgorithm task{
-		candidates_count,
-		max_population_count,
-		min_improvement_proc
-	};
-	task.run();
-	return 0;
+    cout << "\n==== LOSOWANIE KANDYDATOW====\n";
+
+    const int num_to_select = 3;
+
+    for (int i = 0; i < num_to_select; ++i) {
+        TCandidate* selected = pop.promote_candidate();
+        cout << "Wybrany kandydat #" << i + 1 << ":\n";
+        selected->info();
+    }
+    pop.test_histogram(10000);
+
+    return 0;
 }
