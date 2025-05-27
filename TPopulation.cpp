@@ -1,6 +1,7 @@
 #include "TPopulation.h"
 #include <iostream>
 #include "TCandidate.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -71,6 +72,10 @@ TCandidate* TPopulation::promote_candidate() {
 }
 
 
+bool porownaj_pary(const pair<int, size_t>& a, const pair<int, size_t>& b) {
+    return a.first > b.first;
+}
+
 void TPopulation::test_histogram(int num_draws)
 {
     vector<int> counts(candidates.size(), 0);
@@ -85,17 +90,23 @@ void TPopulation::test_histogram(int num_draws)
         }
     }
 
-    cout << "\nHistogram losowan kandydatow:\n";
+    vector<pair<int, size_t>> wyniki;
     for (size_t i = 0; i < counts.size(); ++i) {
-        cout << "Kandydat #" << i << ": ";
-        int bars = counts[i] * 50 / num_draws;
+        wyniki.push_back(make_pair(counts[i], i));
+    }
+
+    sort(wyniki.begin(), wyniki.end(), porownaj_pary);
+
+    cout << "\nHistogram losowan kandydatow:\n";
+    for (const auto& para : wyniki) {
+        size_t j = para.second;
+        cout << "Kandydat #" << j << ": ";
+        int bars = counts[j] * 50 / num_draws;
         for (int k = 0; k < bars; ++k) {
             cout << "|";
         }
-        cout << " (" << counts[i] << ")\n";
+        cout << " (" << counts[j] << ")\n";
     }
 }
-
-
 
 
