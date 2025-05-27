@@ -10,5 +10,7 @@ private:
 public:
     TCandidate();      // tu inicjalizuje zmienne x1, x1   
     void rate();       // f. do obliczania ratingu   
-    void info();        // f. do wyswietlania informacji
+    void info() const;        // f. do wyswietlania informacji
+    double getRating() const;
+
 };

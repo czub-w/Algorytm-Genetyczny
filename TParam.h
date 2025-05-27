@@ -22,7 +22,7 @@ public:
 	
 	void set_rand_val();
 	void set_val(double val) { val_id = get_val_id(val); }
-	double get_val() { return x_start + val_id * dx; }
+	double get_val() const { return x_start + val_id * dx; }
 	
 	void info();
 
