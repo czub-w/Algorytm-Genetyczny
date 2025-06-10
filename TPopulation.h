@@ -20,3 +20,5 @@ public:
     /*void histogram(int draws);*/
 
 };
+void crossover(TCandidate& a, TCandidate& b);
+void mutate(TCandidate& c);

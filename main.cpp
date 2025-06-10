@@ -1,27 +1,51 @@
 #include <iostream>
 #include <cstdlib>
-#include <time.h>
+#include <ctime>
 #include "TAlgorithm.h"
+#include "TPopulation.h"
 
 using namespace std;
 
 int main() {
     srand(time(0));
 
-    TPopulation pop(10);
+    TPopulation pop(30);
     pop.calculate();
+
+    cout << "==== POCZATKOWA POPULACJA ====" << endl;
     pop.info();
 
-    cout << "\n==== LOSOWANIE KANDYDATOW====\n";
+    cout << "\n==== KRZYZOWANIE PAR ====" << endl;
 
-    const int num_to_select = 3;
+    for (int i = 0; i < 15; ++i) {
+        TCandidate* c1 = pop.promote_candidate();
+        TCandidate* c2 = pop.promote_candidate();
 
-    for (int i = 0; i < num_to_select; ++i) {
-        TCandidate* selected = pop.promote_candidate();
-        cout << "Wybrany kandydat #" << i + 1 << ":\n";
-        selected->info();
+        cout << "\n--- Para #" << i + 1 << " ---" << endl;
+        cout << "Przed krzyzowaniem:" << endl;
+        c1->info();
+        c2->info();
+
+        int x = rand() % 100;
+        if (x < 75) {
+            crossover(*c1, *c2);
+
+            cout << "Po krzyzowaniu:" << endl;
+            c1->info();
+            c2->info();
+
+            cout << "Mutacja kandydatow:" << endl;
+            mutate(*c1);
+            mutate(*c2);
+
+            cout << "Po mutacji:" << endl;
+            c1->info();
+            c2->info();
+        }
+        else {
+            cout << "Krzyzowanie pominiete (los < 75% nie spelniony). los = " << x << endl;
+        }
     }
-    pop.test_histogram(10000);
 
     return 0;
 }

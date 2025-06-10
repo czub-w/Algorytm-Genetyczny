@@ -110,3 +110,29 @@ void TPopulation::test_histogram(int num_draws)
 }
 
 
+void crossover(TCandidate& a, TCandidate& b) {
+    string bin1 = a.encodeBinary();
+    string bin2 = b.encodeBinary();
+
+    int pos = rand() % 4 + 1;
+    cout << "Krzyzowanie na pozycji: " << pos << endl << endl;
+    string new1 = bin1.substr(0, pos) + bin2.substr(pos);
+    string new2 = bin2.substr(0, pos) + bin1.substr(pos);
+
+    a.decodeBinary(new1);
+    b.decodeBinary(new2);
+}
+
+void mutate(TCandidate& c) {
+    string bin = c.encodeBinary();
+
+    for (size_t i = 0; i < bin.size(); ++i) {
+        int chance = rand() % 100;
+        if (chance < 5) {
+            bin[i] = (bin[i] == '0') ? '1' : '0';
+            cout << "Mutacja na bicie #" << i << " -> nowy bit: " << bin[i] << endl;
+        }
+    }
+
+    c.decodeBinary(bin);
+}
