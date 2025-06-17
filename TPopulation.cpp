@@ -1,138 +1,119 @@
 #include "TPopulation.h"
-#include <iostream>
 #include "TCandidate.h"
+#include <iostream>
 #include <algorithm>
 
 using namespace std;
 
-int TPopulation::_id = 0;
-
-TPopulation::TPopulation(int n) {
-    for (int i = 0; i < n; ++i) {
-        candidates.push_back(TCandidate());
+TPopulation::TPopulation(const vector<TCandidate*>& new_cands, int id_) : _id(id_) {
+    for (TCandidate* c : new_cands) {
+        candidates.push_back(c->create_copy());
     }
-    _id++;  
+}
+
+TPopulation::TPopulation(int n, const TCandidate* prototype, int id_) : _id(id_) {
+    for (int i = 0; i < n; ++i) {
+        candidates.push_back(prototype->create_new());
+    }
+}
+
+TPopulation::~TPopulation() {
+    for (TCandidate* c : candidates) delete c;
 }
 
 void TPopulation::calculate() {
-    for (auto& candidate : candidates) {
-        candidate.rate();
+    vector<TCandidate*> new_generation;
+
+    while (new_generation.size() < candidates.size()) {
+        TCandidate* parent1 = promote_candidate();
+        TCandidate* parent2 = promote_candidate();
+
+        if (!parent1 || !parent2) {
+            cerr << "[ERROR] Brak rodziców do krzy¿owania.\n";
+            break;
+        }
+
+        if ((rand() % 100) < 75) {
+            TCandidate* child1 = parent1->crossover(*parent2);
+            TCandidate* child2 = parent2->crossover(*parent1);
+
+            child1->mutate();
+            child2->mutate();
+
+            new_generation.push_back(child1);
+            if (new_generation.size() < candidates.size())
+                new_generation.push_back(child2);
+            else
+                delete child2;
+        }
+        else {
+            TCandidate* copy = parent1->create_copy();
+            copy->mutate();
+            new_generation.push_back(copy);
+        }
     }
+
+    for (auto& c : candidates)
+        delete c;
+
+    candidates = std::move(new_generation);
+
+    for (auto& c : candidates)
+        c->rate();
 }
 
 void TPopulation::info() {
     cout << endl << "===== POPULATION #" << _id << " =====" << endl;
     for (size_t i = 0; i < candidates.size(); ++i) {
-        cout << "== candidate#" << i << ": " << endl;
-        candidates[i].info();
-        cout << endl;
+        cout << "== candidate#" << i << ": ";
+        candidates[i]->info();
     }
 }
 
 void TPopulation::bestCandidate() const {
     if (candidates.empty()) return;
-
-    size_t bestIndex = 0;
-
-    for (size_t i = 1; i < candidates.size(); ++i) {
-        if (candidates[i].getRating() > candidates[bestIndex].getRating()) {
-            bestIndex = i;
-        }
-    }
-
-    const TCandidate* best = &candidates[bestIndex];
-
-    cout << "\nNajlepszy osobnik (kandydat #" << bestIndex << ") z populacji #" << _id << ":\n";
-    best->info(); // to jest to samo
-    (*best).info(); // co to
-
+    auto best = *max_element(candidates.begin(), candidates.end(),
+        [](TCandidate* a, TCandidate* b) {
+            return a->getRating() < b->getRating();
+        });
+    cout << "\nNajlepszy osobnik:\n";
+    best->info();
 }
 
-const std::vector<TCandidate>& TPopulation::getCandidates() const {
+const std::vector<TCandidate*>& TPopulation::getCandidates() const {
     return candidates;
 }
+
 TCandidate* TPopulation::promote_candidate() {
-    
-    double total_rating = 0;
-    for (const auto& c : candidates) {
-        total_rating += c.getRating();
+    if (candidates.empty()) return nullptr;
+    double total = 0;
+    for (auto c : candidates) total += c->getRating();
+    double r = ((double)rand() / RAND_MAX) * total, sum = 0;
+    for (auto c : candidates) {
+        sum += c->getRating();
+        if (r <= sum) return c;
     }
+    if (!candidates.empty())
+        return candidates.back();
+    else
+        return nullptr;
 
-    double r = ((double)rand() / RAND_MAX) * total_rating; // generowanie od 0 do total_ating
-
-    double sum = 0;
-    for (auto& c : candidates) {
-        sum += c.getRating();
-        if (r < sum) {
-            return &c;
-        }
-    }
-
-    return &candidates.back();
 }
 
-
-bool porownaj_pary(const pair<int, size_t>& a, const pair<int, size_t>& b) {
-    return a.first > b.first;
+TPopulation& TPopulation::operator=(TPopulation&& other) noexcept {
+    if (this != &other) {
+        for (TCandidate* c : candidates)
+            delete c;
+        candidates = std::move(other.candidates);
+        _id = other._id;
+    }
+    return *this;
 }
 
-void TPopulation::test_histogram(int num_draws)
-{
-    vector<int> counts(candidates.size(), 0);
-
-    for (int i = 0; i < num_draws; ++i) {
-        TCandidate* selected = promote_candidate();
-        for (size_t j = 0; j < candidates.size(); ++j) {
-            if (selected == &candidates[j]) {
-                counts[j]++;
-                break;
-            }
-        }
-    }
-
-    vector<pair<int, size_t>> wyniki;
-    for (size_t i = 0; i < counts.size(); ++i) {
-        wyniki.push_back(make_pair(counts[i], i));
-    }
-
-    sort(wyniki.begin(), wyniki.end(), porownaj_pary);
-
-    cout << "\nHistogram losowan kandydatow:\n";
-    for (const auto& para : wyniki) {
-        size_t j = para.second;
-        cout << "Kandydat #" << j << ": ";
-        int bars = counts[j] * 50 / num_draws;
-        for (int k = 0; k < bars; ++k) {
-            cout << "|";
-        }
-        cout << " (" << counts[j] << ")\n";
-    }
+void TPopulation::setId(int id) {
+    _id = id;
 }
 
-
-void crossover(TCandidate& a, TCandidate& b) {
-    string bin1 = a.encodeBinary();
-    string bin2 = b.encodeBinary();
-
-    int pos = rand() % 4 + 1;
-    cout << "Krzyzowanie na pozycji: " << pos << endl << endl;
-    string new1 = bin1.substr(0, pos) + bin2.substr(pos);
-    string new2 = bin2.substr(0, pos) + bin1.substr(pos);
-
-    a.decodeBinary(new1);
-    b.decodeBinary(new2);
-}
-
-void mutate(TCandidate& c) {
-    string bin = c.encodeBinary();
-
-    for (size_t i = 0; i < bin.size(); ++i) {
-        int chance = rand() % 100;
-        if (chance < 5) {
-            bin[i] = (bin[i] == '0') ? '1' : '0';
-            cout << "Mutacja na bicie #" << i << " -> nowy bit: " << bin[i] << endl;
-        }
-    }
-
-    c.decodeBinary(bin);
+int TPopulation::getId() const {
+    return _id;
 }

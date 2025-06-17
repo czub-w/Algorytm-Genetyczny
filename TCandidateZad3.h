@@ -1,9 +1,9 @@
 #pragma once
 #include "TCandidate.h"
 
-class TCandidateZad1 : public TCandidate {
+class TCandidateZad3 : public TCandidate {
 public:
-    TCandidateZad1();
+    TCandidateZad3();
     void rate() override;
     void init_vector() override;
     TCandidate* create_new() const override;

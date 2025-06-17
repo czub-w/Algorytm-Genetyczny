@@ -4,5 +4,8 @@
 class TCandidateZad2 : public TCandidate {
 public:
     TCandidateZad2();
-    void info() const override;
+    void rate() override;
+    void init_vector() override;
+    TCandidate* create_new() const override;
+    TCandidate* create_copy() const override;
 };

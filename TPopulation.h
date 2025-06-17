@@ -1,24 +1,25 @@
 #pragma once
-
 #include "TCandidate.h"
 #include <vector>
 
 class TPopulation {
 private:
-    std::vector<TCandidate> candidates;
+    std::vector<TCandidate*> candidates;
+    int _id;
 
 public:
-    static int _id;
+    TPopulation(int n, const TCandidate* prototype, int id_);
+    TPopulation(const std::vector<TCandidate*>& new_cands, int id_);
+    ~TPopulation();
 
-    TPopulation(int n);       // konstruktor - tworzy populacjê
-    void calculate();         // oblicza wartoœci wszystkich kandydatów
-    void info();              // wyœwietla informacje o populacji
+    void calculate();
+    void info();
     void bestCandidate() const;
-    const std::vector<TCandidate>& getCandidates() const;
-    TCandidate* promote_candidate(); // wybór osobnika metod¹ ko³a ruletki
-    void test_histogram(int num_draws);
-    /*void histogram(int draws);*/
+    const std::vector<TCandidate*>& getCandidates() const;
+    TCandidate* promote_candidate();
+
+    void setId(int id);
+    int getId() const;
+    TPopulation& operator=(TPopulation&& other) noexcept;
 
 };
-void crossover(TCandidate& a, TCandidate& b);
-void mutate(TCandidate& c);

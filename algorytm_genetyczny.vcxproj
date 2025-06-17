@@ -132,6 +132,7 @@
     <ClCompile Include="TCandidate.cpp" />
     <ClCompile Include="TCandidateZad1.cpp" />
     <ClCompile Include="TCandidateZad2.cpp" />
+    <ClCompile Include="TCandidateZad3.cpp" />
     <ClCompile Include="TKlasa.cpp" />
     <ClCompile Include="TParam.cpp" />
     <ClCompile Include="TPopulation.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="TCandidate.h" />
     <ClInclude Include="TCandidateZad1.h" />
     <ClInclude Include="TCandidateZad2.h" />
+    <ClInclude Include="TCandidateZad3.h" />
     <ClInclude Include="TKlasa.h" />
     <ClInclude Include="TParam.h" />
     <ClInclude Include="TPopulation.h" />

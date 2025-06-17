@@ -1,24 +1,27 @@
 #pragma once
-
 #include "TParam.h"
+#include <vector>
 #include <string>
 
 class TCandidate {
 protected:
-    TParam x1, x2;
+    std::vector<TParam> genotype;
     double rating;
-    int x1_bits, x2_bits;
 
 public:
-    TCandidate(int x1_bits = 3, int x2_bits = 2);
-    virtual void rate();
-    virtual void info() const;
     virtual ~TCandidate() {}
-    double getRating() const;
+
+    virtual void rate() = 0;
+    virtual void init_vector() = 0;
 
     virtual std::string encodeBinary() const;
     virtual void decodeBinary(const std::string& bin);
-};
+    virtual void mutate(); 
+    virtual TCandidate* crossover(const TCandidate& other) const;
 
-void crossover(TCandidate& a, TCandidate& b);
-void mutate(TCandidate& c);
+    virtual TCandidate* create_new() const = 0;
+    virtual TCandidate* create_copy() const = 0;
+
+    virtual void info() const;
+    double getRating() const { return rating; }
+};
